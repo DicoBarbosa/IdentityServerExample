@@ -9,11 +9,12 @@ using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using TCM.IdentityServer.Core;
 using TCM.IdentityServer.Core.Repositories;
 using TCM.IdentityServer.Data;
 using TCM.IdentityServer.Data.Repositories;
 
-namespace TCM.IdentityServer.Core
+namespace TCM.IdentityServer
 {
     public class Startup
     {
@@ -34,7 +35,6 @@ namespace TCM.IdentityServer.Core
                 options => options.UseSqlServer(
                     Configuration.GetConnectionString("IdentityServerConnection")));
 
-
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<IClaimRepository, ClaimRepository>();
             services.AddTransient<ILoginRepository, LoginRepository>();
@@ -46,8 +46,10 @@ namespace TCM.IdentityServer.Core
                 .AddInMemoryApiResources(Config.Apis)
                 .AddInMemoryClients(Config.Clients);
 
+            builder.AddSigningCredential(LoadCertificateFromStore());
+
             //builder.AddProfileService<LocalUserProfileService>();
-            
+
         }
 
         public void Configure(IApplicationBuilder app)
